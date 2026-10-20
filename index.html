@@ -5618,6 +5618,8 @@ padding:6px 8px calc(6px + env(safe-area-inset-bottom));background:linear-gradie
 .tri .pawn{width:3.9cqw;height:6.1cqw}
 #home input[readonly]{background:#eadfc0;font-weight:800}
 #acc .box{display:flex;align-items:center;justify-content:center;gap:6px}
+#cht{display:none;position:fixed;left:8px;top:8px;z-index:20;background:#3b2008e6;color:#ffd54f;border:2px solid #ffd600;border-radius:10px;padding:4px 8px;font-size:.8rem;font-weight:800}
+#game[style*="display: flex"]~#cht{display:block}
 </style></head><body>
 <h1 id="tt">🇮🇩 MONOPOLI INDONESIA</h1>
 <div id="home">
@@ -6007,7 +6009,7 @@ function render(){if(!built||bShape!==(S.shape|0)){bShape=S.shape|0;build();buil
  if(!S.st){ctl.className='ctl lob';c=`<div>${isHost&&!local?`Kode room:<br><b style="font-size:2.2em;letter-spacing:5px;color:#a51c1c">${code}</b><br>Bagikan kode ke temanmu`:isHost?'Mode lokal':'Menunggu host memulai…'}</div><div>Pemain: ${S.players.length}/5</div>`+(isHost?`<div><button class=s onclick=addLocal()>+ Pemain lokal</button><button class=s onclick=addBot()>+ Bot</button><button class=s onclick=togShape()>${S.shape?'△ Segitiga':'□ Kotak'}</button><button class=g onclick=startG()>▶ Mulai</button></div>`:'')}
  else if(S.win!=null){ctl.className='ctl lob';c=`<div style="font-size:6cqw">🏆</div><b>${CH[S.win]} ${esc(S.players[S.win].n)} MENANG!</b><button onclick=location.reload()>Main lagi</button>`}
  else{c=`<span style="color:${C[S.cur]};text-shadow:0 0 3px #fff">${CH[S.cur]} ${esc(p.n)}</span>`;
-  if(can){if(S.ph=='roll')c+=`${ADM?cheatUI():''}<button onclick="doRoll()">🎲 Lempar Dadu</button>`+(p.jail?`<button class=s onclick="A('pay')">Bayar 50</button>`:'');
+  if(can){if(S.ph=='roll')c+=`<button onclick="doRoll()">🎲 Lempar Dadu</button>`+(p.jail?`<button class=s onclick="A('pay')">Bayar 50</button>`:'');
    if(S.ph=='end')c+=`<button onclick="A('end')">Akhiri Giliran ➜</button>`}else c+=' <i>menunggu…</i>'}
  const cc=ctl.className;if(ctl._h!==c||ctl._k!==cc){ctl._h=c;ctl._k=cc;ctl.innerHTML=D(c)}
  const mi=local?S.cur:S.players.findIndex(x=>x.owner==myId());
@@ -6091,11 +6093,11 @@ function botStep(){if(!isHost||!S.st||S.win!=null)return;const p=S.players[S.cur
 setMute(muted);if(window.speechSynthesis)speechSynthesis.getVoices();
 new ResizeObserver(()=>{const h=sd.offsetHeight;if(h)document.documentElement.style.setProperty('--bh',h+'px')}).observe(sd);
 [tt,rot,...document.querySelectorAll('#home button')].forEach(e=>e.innerHTML=D(e.innerHTML));
-/* ===== ADMIN: atur dadu ===== */
+/* ===== ADMIN: atur total dadu (2-12), panel di pojok kiri atas ===== */
 const ADM=(()=>{try{const P=window.parent;return !!(P&&P!==window&&P.casinoUser&&P.casinoUser()==='dark')}catch(_){return false}})();
-let CHT=[0,0];
-const cheatUI=()=>'<span style="font-size:.85em">🎯 '+[0,1].map(j=>'<select onchange="CHT['+j+']=+this.value" style="font-size:inherit">'+['Acak',1,2,3,4,5,6].map((o,v)=>'<option value='+v+(CHT[j]==v?' selected':'')+'>'+o+'</option>').join('')+'</select>').join(' ')+'</span>';
-function doRoll(){const r=()=>1+Math.random()*6|0;A('roll',(CHT[0]||CHT[1])?[CHT[0]||r(),CHT[1]||r()]:undefined)}
+let CHT=0;
+function doRoll(){let d;if(CHT){const lo=Math.max(1,CHT-6),hi=Math.min(6,CHT-1),a=lo+Math.random()*(hi-lo+1)|0;d=[a,CHT-a]}A('roll',d);CHT=0;const s=document.querySelector('#cht select');if(s)s.value=0}
+if(ADM){const e=document.createElement('div');e.id='cht';e.innerHTML='🎯 Total dadu <select onchange="CHT=+this.value">'+['Acak',2,3,4,5,6,7,8,9,10,11,12].map((o,i)=>'<option value='+(i?o:0)+'>'+o+'</option>').join('')+'</select>';document.body.appendChild(e)}
 /* ===== MODE EMBED: nama pemain = akun login Casino ===== */
 try{const P=window.parent,u=P&&P!==window&&P.casinoUser&&P.casinoUser();if(u){nm.value=String(u).slice(0,12);nm.readOnly=true}}catch(_){}
 setShape(shapeSel);
