@@ -5618,8 +5618,8 @@ padding:6px 8px calc(6px + env(safe-area-inset-bottom));background:linear-gradie
 .tri .pawn{width:3.9cqw;height:6.1cqw}
 #home input[readonly]{background:#eadfc0;font-weight:800}
 #acc .box{display:flex;align-items:center;justify-content:center;gap:6px}
-#cht{display:none;position:fixed;left:8px;top:8px;z-index:20;background:#3b2008e6;color:#ffd54f;border:2px solid #ffd600;border-radius:10px;padding:4px 8px;font-size:.8rem;font-weight:800}
-#game[style*="display: flex"]~#cht{display:block}
+#cht{display:none;position:fixed;right:64px;top:8px;z-index:20;background:#3b2008e6;color:#ffd54f;border:2px solid #ffd600;border-radius:10px;padding:4px 8px;font-size:.8rem;font-weight:800}
+#cht.show{display:block}
 </style></head><body>
 <h1 id="tt">🇮🇩 MONOPOLI INDONESIA</h1>
 <div id="home">
@@ -6096,8 +6096,9 @@ new ResizeObserver(()=>{const h=sd.offsetHeight;if(h)document.documentElement.st
 /* ===== ADMIN: atur total dadu (2-12), panel di pojok kiri atas ===== */
 const ADM=(()=>{try{const P=window.parent;return !!(P&&P!==window&&P.casinoUser&&P.casinoUser()==='dark')}catch(_){return false}})();
 let CHT=0;
-function doRoll(){let d;if(CHT){const lo=Math.max(1,CHT-6),hi=Math.min(6,CHT-1),a=lo+Math.random()*(hi-lo+1)|0;d=[a,CHT-a]}A('roll',d);CHT=0;const s=document.querySelector('#cht select');if(s)s.value=0}
-if(ADM){const e=document.createElement('div');e.id='cht';e.innerHTML='🎯 Total dadu <select onchange="CHT=+this.value">'+['Acak',2,3,4,5,6,7,8,9,10,11,12].map((o,i)=>'<option value='+(i?o:0)+'>'+o+'</option>').join('')+'</select>';document.body.appendChild(e)}
+function doRoll(){let d;if(CHT){const lo=Math.max(1,CHT-6),hi=Math.min(6,CHT-1),a=lo+Math.random()*(hi-lo+1)|0;d=[a,CHT-a]}A('roll',d);CHT=0;const s=document.querySelector('#cht select');if(s)s.value=0;const pn=document.getElementById('cht');if(pn)pn.classList.remove('show')}
+if(ADM){const e=document.createElement('div');e.id='cht';e.innerHTML='🎯 Total dadu <select onchange="CHT=+this.value">'+['Acak',2,3,4,5,6,7,8,9,10,11,12].map((o,i)=>'<option value='+(i?o:0)+'>'+o+'</option>').join('')+'</select>';document.body.appendChild(e);
+ const k=document.querySelector('.tb button[title="Reset posisi papan"]');if(k){k.removeAttribute('onclick');k.onclick=()=>e.classList.toggle('show')}}
 /* ===== MODE EMBED: nama pemain = akun login Casino ===== */
 try{const P=window.parent,u=P&&P!==window&&P.casinoUser&&P.casinoUser();if(u){nm.value=String(u).slice(0,12);nm.readOnly=true}}catch(_){}
 setShape(shapeSel);
