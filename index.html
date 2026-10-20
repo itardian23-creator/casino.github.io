@@ -5958,7 +5958,7 @@ function buyDlg(p){const i=p.pos,s=B[i],t=s[1],isP=t=='p',pr=pc(i),hc=isP?HC[s[3
  +(isP&&isJabo(s[3])?'<div class=dsub>💎 Kawasan Jabodetabek — termahal!</div>':'<div class=dsub>'+(isP?'Kota':t=='r'?'Stasiun Kereta':'Utilitas')+'</div>')
  +`<div class=dpic>${picOf(i)}</div><div class=dp>Harga ${fm(pr)}</div>${deedInfo(i)}<div class=dnote>💰 Uangmu ${fm(p.m)}${p.m>=pr?'':' — <span style="color:#b00">tidak cukup</span>'}</div></div>`
  +`<div class="dbtn dga"><button class=g ${p.m>=pr?'':'disabled'} onclick="A('buy')">Beli ${isP?'Tanah ':''}${fm(pr)}</button>`
- +(isP?(p.lap?'<div class=hrow>'+[1,2,3,4,5].map(k=>`<button class=g ${p.m>=pr+k*hc?'':'disabled'} onclick="A('buy',${k})">+${k==5?'🏨':k+'🏠'} ${fm(pr+k*hc)}</button>`).join('')+'</div>':'<small>🏠 rumah bisa dibeli setelah lewat Mulai</small>'):'')
+ +(isP?(p.lap?'<div class=hrow>'+[1,2,3,4,5].map(k=>`<button class=g ${p.m>=pr+k*hc?'':'disabled'} onclick="A('buy',${k})">+${k==5?'🏨':k+'🏠'} ${fm(pr+k*hc)}<br><small>sewa ${fm(rb(i)*RM[k]+jx(i))}</small></button>`).join('')+'</div>':'<small>🏠 tanah saja dulu, rumah bisa dibeli setelah lewat Mulai</small>'):'')
  +`<button class=s onclick="A('skip')">Lewati</button></div></div>`}
 function upgDlg(p){const i=p.pos,s=B[i],pr=S.props[i],g=s[3],hc=HC[g],b=rb(i),j=jx(i),mx=5-pr.h;
  const opts=[...Array(mx)].map((_,x)=>{const n=x+1,t=pr.h+n;return `<button class=g ${p.m>=n*hc?'':'disabled'} onclick="A('build',{i:${i},n:${n}})">${t==5?'🏨 Hotel':'🏠×'+t} ${fm(n*hc)}<br><small>sewa ${fm(b*RM[t]+j)}</small></button>`}).join('');
