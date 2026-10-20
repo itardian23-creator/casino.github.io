@@ -5618,6 +5618,8 @@ padding:6px 8px calc(6px + env(safe-area-inset-bottom));background:linear-gradie
 .tri .pawn{width:3.9cqw;height:6.1cqw}
 #home input[readonly]{background:#eadfc0;font-weight:800}
 #acc .box{display:flex;align-items:center;justify-content:center;gap:6px}
+#dlg .hrow{display:flex;flex-wrap:wrap;gap:3px;justify-content:center;width:100%}
+#dlg .hrow button{font-size:.72rem;padding:4px 7px;margin:0;line-height:1.15}
 #cht{display:none;position:fixed;right:64px;top:8px;z-index:20;background:#3b2008e6;color:#ffd54f;border:2px solid #ffd600;border-radius:10px;padding:4px 8px;font-size:.8rem;font-weight:800}
 #cht.show{display:block}
 </style></head><body>
@@ -5771,7 +5773,7 @@ function roll(p,fd){const a=fd?fd[0]:1+Math.random()*6|0,b=fd?fd[1]:1+Math.rando
  if(S.dbl==3){jail(p);S.ph='end';return}move(p,a+b)}
 function act(from,y,a){if(!S.st||S.win!=null)return;const p=S.players[S.cur];if(!p||p.owner!=from)return;
  if(y=='roll'&&S.ph=='roll')roll(p,(p.n==='dark'&&Array.isArray(a)&&a.length==2&&a.every(v=>Number.isInteger(v)&&v>=1&&v<=6))?a:null);
- else if(y=='buy'&&S.ph=='buy'&&!(S.bl&&S.bl[p.pos])){const sq=B[p.pos],pr=pc(p.pos),hs=(a=='h'&&sq[1]=='p'&&p.lap)?HC[sq[3]]:0;if(p.m>=pr+hs){p.m-=pr+hs;S.props[p.pos]={o:S.cur,h:hs?1:0};lg('🏠 '+p.n+' membeli '+sq[0]+(hs?' + 1 rumah':''));S.sfn=(S.sfn||0)+1;S.sf={id:S.sfn,x:p.n+' membeli '+(sq[1]=='p'?'kota ':'')+sq[0].replace(/\s*[⚡🚰]/g,'')+(hs?' dan satu rumah':'')};after(p)}}
+ else if(y=='buy'&&S.ph=='buy'&&!(S.bl&&S.bl[p.pos])){const sq=B[p.pos],pr=pc(p.pos),kk=(sq[1]=='p'&&p.lap)?(a=='h'?1:(Number.isInteger(+a)&&+a>=1&&+a<=5?+a:0)):0,hs=kk?kk*HC[sq[3]]:0,nr=kk==5?'hotel':kk+' rumah';if(p.m>=pr+hs){p.m-=pr+hs;S.props[p.pos]={o:S.cur,h:kk};lg('🏠 '+p.n+' membeli '+sq[0]+(kk?' + '+nr:''));S.sfn=(S.sfn||0)+1;S.sf={id:S.sfn,x:p.n+' membeli '+(sq[1]=='p'?'kota ':'')+sq[0].replace(/\s*[⚡🚰]/g,'')+(kk?' dan '+nr:'')};after(p)}}
  else if(y=='skip'&&(S.ph=='buy'||S.ph=='upg'||S.ph=='park'||S.ph=='seize'))after(p);
  else if(y=='park'&&S.ph=='park'){const n=+a;if(Number.isInteger(n)&&n>=0&&n<40&&n!=30&&n!=20){if(n<p.pos)passGo(p);
   S.sfn=(S.sfn||0)+1;S.sf={id:S.sfn,x:p.n+' pergi ke '+B[n][0].replace(/\s*[⚡🚰]/g,'')};lg(p.n+' pergi ke '+B[n][0]);p.pos=n;land(p)}}
@@ -5782,8 +5784,9 @@ function act(from,y,a){if(!S.st||S.win!=null)return;const p=S.players[S.cur];if(
   after(p)}}
  else if(y=='end'&&S.ph=='end')nextTurn();
  else if(y=='pay'&&S.ph=='roll'&&p.jail&&p.m>=50){p.m-=50;p.jail=0;lg(p.n+' bayar 50, bebas')}
- else if(y=='build'&&(S.ph=='roll'||S.ph=='end'||S.ph=='upg')){const pr=S.props[a],s=B[a];
-  if(pr&&pr.o==S.cur&&s[1]=='p'&&pr.h<5&&p.lap&&p.m>=HC[s[3]]){p.m-=HC[s[3]];pr.h++;lg('🔨 '+p.n+(pr.h==5?' membangun hotel di ':' menambah rumah di ')+s[0]);if(S.ph=='upg'&&a==p.pos)after(p)}}
+ else if(y=='build'&&(S.ph=='roll'||S.ph=='end'||S.ph=='upg')){const ob=a&&typeof a=='object',ix=ob?+a.i:a,cnt=ob?Math.min(5,Math.max(1,+a.n|0)):1,pr=S.props[ix],s=B[ix];
+  if(pr&&pr.o==S.cur&&s[1]=='p'&&p.lap){let n=0;while(n<cnt&&pr.h<5&&p.m>=HC[s[3]]){p.m-=HC[s[3]];pr.h++;n++}
+   if(n){lg('🔨 '+p.n+(pr.h==5?' membangun hotel di ':' menambah '+n+' rumah di ')+s[0]);if(S.ph=='upg'&&ix==p.pos)after(p)}}}
  else if(y=='sell'&&['roll','end','upg','buy','rent'].includes(S.ph)){const pr=S.props[a],s=B[a];
   if(pr&&pr.o==S.cur){const short=S.ph=='rent'&&S.due&&p.m<S.due.a,anyH=Object.keys(S.props).some(i=>S.props[i].o==S.cur&&S.props[i].h>0);
    if(pr.h>0){const v=HC[s[3]]>>1,ho=pr.h==5;pr.h--;p.m+=v;lg('💰 '+p.n+' menjual '+(ho?'hotel':'rumah')+' di '+s[0]+' +'+fm(v))}
@@ -5955,12 +5958,11 @@ function buyDlg(p){const i=p.pos,s=B[i],t=s[1],isP=t=='p',pr=pc(i),hc=isP?HC[s[3
  +(isP&&isJabo(s[3])?'<div class=dsub>💎 Kawasan Jabodetabek — termahal!</div>':'<div class=dsub>'+(isP?'Kota':t=='r'?'Stasiun Kereta':'Utilitas')+'</div>')
  +`<div class=dpic>${picOf(i)}</div><div class=dp>Harga ${fm(pr)}</div>${deedInfo(i)}<div class=dnote>💰 Uangmu ${fm(p.m)}${p.m>=pr?'':' — <span style="color:#b00">tidak cukup</span>'}</div></div>`
  +`<div class="dbtn dga"><button class=g ${p.m>=pr?'':'disabled'} onclick="A('buy')">Beli ${isP?'Tanah ':''}${fm(pr)}</button>`
- +(isP?`<button class=g ${p.lap&&p.m>=pr+hc?'':'disabled'} onclick="A('buy','h')">${p.lap?'Tanah + 🏠 '+fm(pr+hc):'🏠 setelah lewat Mulai'}</button>`:'')
+ +(isP?(p.lap?'<div class=hrow>'+[1,2,3,4,5].map(k=>`<button class=g ${p.m>=pr+k*hc?'':'disabled'} onclick="A('buy',${k})">+${k==5?'🏨':k+'🏠'} ${fm(pr+k*hc)}</button>`).join('')+'</div>':'<small>🏠 rumah bisa dibeli setelah lewat Mulai</small>'):'')
  +`<button class=s onclick="A('skip')">Lewati</button></div></div>`}
-function upgDlg(p){const i=p.pos,s=B[i],pr=S.props[i],g=s[3],hc=HC[g],b=rb(i),hot=pr.h==4;
- return `<div class=dh style="background:${G[g]}${LGT(g)}">${s[0]}</div><div class=dgb><div class=dgi><div class=dsub>Kotamu sendiri · ${pr.h?pr.h+' rumah':'tanah kosong'}</div><div class=dpic>${picOf(i)}</div>`
- +`<div class=dp>Bangun ${hot?'Hotel':'Rumah ke-'+(pr.h+1)} ${fm(hc)}</div><div class=rg>${rg('Sewa sekarang',fm(rent(i,pr)))}${rg('Sewa sesudah',fm(b*RM[pr.h+1]+jx(i)))}</div><div class=dnote>💰 Uangmu ${fm(p.m)}</div></div>`
- +`<div class="dbtn dga"><button class=g ${p.m>=hc?'':'disabled'} onclick="A('build',${i})">${hot?'🏨 Bangun Hotel':'🏠 Bangun Rumah'} ${fm(hc)}</button><button class=s onclick="A('skip')">Lewati</button></div></div>`}
+function upgDlg(p){const i=p.pos,s=B[i],pr=S.props[i],g=s[3],hc=HC[g],b=rb(i),j=jx(i),mx=5-pr.h;
+ const opts=[...Array(mx)].map((_,x)=>{const n=x+1,t=pr.h+n;return `<button class=g ${p.m>=n*hc?'':'disabled'} onclick="A('build',{i:${i},n:${n}})">${t==5?'🏨 Hotel':'🏠×'+t} ${fm(n*hc)}<br><small>sewa ${fm(b*RM[t]+j)}</small></button>`}).join('');
+ return `<div class=dh style="background:${G[g]}${LGT(g)}">${s[0]}</div><div class=dgb><div class=dgi><div class=dsub>Kotamu sendiri · ${pr.h?(pr.h==5?'hotel':pr.h+' rumah'):'tanah kosong'}</div><div class=dpic>${picOf(i)}</div><div class=dp>Mau bangun berapa?</div><div class=rg>${rg('Sewa sekarang',fm(rent(i,pr)))}${rg('Per rumah',fm(hc))}</div><div class=dnote>💰 Uangmu ${fm(p.m)}</div></div><div class="dbtn dga"><div class=hrow>${opts}</div><button class=s onclick="A('skip')">Lewati</button></div></div>`}
 function rentDlg(p){const d=S.due,short=p.m<d.a,own=ownedBy(S.cur),hs=own.filter(i=>S.props[i].h>0),has=own.length>0;let head,sub;
  if(d.to>=0){const s=B[d.t],pr=S.props[d.t],o=S.players[d.to],bg=s[3]?G[s[3]]:'#555';
   const dt=s[1]=='p'?(pr.h?(pr.h==5?'Hotel':pr.h+' rumah'):full(d.t,pr.o)?'Tanah · set lengkap ×2':'Tanah'):s[1]=='r'?'Stasiun':'Utilitas';
@@ -6023,8 +6025,7 @@ function render(){if(!built||bShape!==(S.shape|0)){bShape=S.shape|0;build();buil
   pmh=`<div class=pmh><b style="color:${C[openP]}">${esc(q.n)}</b><span><i class=coin>Rp</i>${q.m}jt</span><button class="sm s" onclick="togP(${openP})">Tutup</button></div><div class=pml>`
   +(ids.length?ids.map(i=>{const pr=S.props[i],s=B[i],g=s[3],isP=s[1]=='p',hc=isP?HC[g]:0;
     return `<div class=pmr><span class=chip style="background:${G[g]||'#666'}${g&&LIGHT[g]?';color:#2b2113;text-shadow:none':''}">${nmOf(s)}${pr.h?' '+(pr.h==5?'🏨':'🏠'+pr.h):''}</span>`
-    +(mine&&isP&&pr.h<5&&q.lap?`<button class="sm g" ${q.m>=hc?'':'disabled'} onclick="A('build',${i})">+${pr.h==4?'🏨':'🏠'} ${hc}</button>`:'')
-    +(mine&&pr.h>0?`<button class="sm r" onclick="A('sell',${i})">Jual +${hc>>1}</button>`:'')+'</div>'}).join(''):'<small class=none>Belum punya properti</small>')+'</div>'}
+        +(mine&&pr.h>0?`<button class="sm r" onclick="A('sell',${i})">Jual +${hc>>1}</button>`:'')+'</div>'}).join(''):'<small class=none>Belum punya properti</small>')+'</div>'}
  if(pm._h!==pmh){pm._h=pmh;pm.innerHTML=D(pmh)}pm.className=pmh?'show':''}
 /* ===== Geser / zoom papan kapan saja (tidak terkunci oleh animasi) ===== */
 let view={x:0,y:0,s:1};
